@@ -11,16 +11,16 @@ External <- GET("https://api.etherscan.io/api?module=contract&action=getabi&addr
 Internal <- GET("https://api.etherscan.io/api?module=contract&action=getabi&address=0x02C60D28be3338014Fef3Fdf50a3218B946C0609&type=internal&apikey=public")
 
 
-total_invested <- sum(External$value) 
-total_out <- sum(Internal$Value)
+total_invested <- sum(External$value) #Инвестированно в проект
+total_out <- sum(Internal$Value) #Выведенно из проекта
 invested_per_day <-
-  aggregate(External["value"], by = External["date"], sum)
+  aggregate(External["value"], by = External["date"], sum) #Сколько инвестировали в этот день
 out_per_day <-
-  aggregate(Internal["Value"], by = Internal["Date"], sum)
+  aggregate(Internal["Value"], by = Internal["Date"], sum) #Сколько вывели вывели в этот день
 days_alive <- length(out_per_day$Date)
 
 
-total_in_progress <- c()
+total_in_progress <- c() # Динамика инвестированных средств (наростающий итог)
 total_in_progress[1] <- invested_per_day$value[1]
 for (i in seq(2, length(invested_per_day$value), by = 1)) {
   total_in_progress[i] <-
@@ -29,7 +29,7 @@ for (i in seq(2, length(invested_per_day$value), by = 1)) {
 
 
 
-total_out_progress <- c()
+total_out_progress <- c() # Динамика выведенных средств
 total_out_progress[1] <- out_per_day$Value[1]
 for (i in seq(2, length(out_per_day$Value), by = 1)) {
   total_out_progress[i] <-
@@ -51,7 +51,7 @@ bank_that_day
 
 l <- c(1:days_alive)
 
-
+#Динамика проекта
 ggplot() +
   labs(
     title = "Динамика проекта",
@@ -72,9 +72,10 @@ if (length(a) < length(b)) {
 
 
 #Анализ счетов
-x <- aggregate(External["value"], by = External["from"], sum)
-y <- aggregate(Internal["Value"], by = Internal["To"], sum)
+x <- aggregate(External["value"], by = External["from"], sum) #Введено этим адресом
+y <- aggregate(Internal["Value"], by = Internal["To"], sum) #Выведено этим адресом
 
+#Таблица инвесторов
 z <- c()
 for (i in seq(1, length(x$from), by = 1)) {
   for (j in seq(1, length(y$To), by = 1)) {
@@ -97,9 +98,9 @@ t1 <-
     Percent_made = percent
   )
 
-n_profit <- sum(percent > 0)
-n_loss <- sum(percent < 0)
-n_dead_loss <- sum(percent < -90)
+n_profit <- sum(percent > 0) #Количество прибыльных
+n_loss <- sum(percent < 0) #Количество убыточных
+n_dead_loss <- sum(percent < -90) #Количетсов "мертвых" инвесторов
 
 max_profit <- max(percent)
 max_loss <- min(percent)
