@@ -70,6 +70,15 @@ if (length(a) < length(b)) {
   a[(length(a) + 1):length(b)] <- 0
 }
 
+#Столбиковая диаграмма
+ggplot() + labs(
+  title = "Динамика депозитов и выводов",
+  x = "Дни",
+  y = "ETH",
+  fill = "Легенда"
+) +
+  geom_col(map = aes(x = l, y = b, fill = "Выводы")) +
+  geom_col(map = aes(x = l, y = a, fill = "Депозиты"), alpha = 0.5)
 
 #Анализ счетов
 x <- aggregate(External["value"], by = External["from"], sum) #Введено этим адресом
