@@ -4,12 +4,15 @@ library("ggplot2")
 library("httr")
 library("jsonlite")
 library("markdown")
+library(shiny)
+
+  
+
 
 # Загрузка данных
 External <- GET("https://api.etherscan.io/api?module=contract&action=getabi&address=0x02C60D28be3338014Fef3Fdf50a3218B946C0609&type=external&apikey=public")
 
 Internal <- GET("https://api.etherscan.io/api?module=contract&action=getabi&address=0x02C60D28be3338014Fef3Fdf50a3218B946C0609&type=internal&apikey=public")
-
 
 total_invested <- sum(External$value) #Инвестированно в проект
 total_out <- sum(Internal$Value) #Выведенно из проекта
@@ -71,6 +74,7 @@ if (length(a) < length(b)) {
 }
 
 
+
 #Анализ счетов
 x <- aggregate(External["value"], by = External["from"], sum) #Введено этим адресом
 y <- aggregate(Internal["Value"], by = Internal["To"], sum) #Выведено этим адресом
@@ -108,3 +112,16 @@ avg_profit <- sum(percent[percent > 0]) / n_profit
 avg_loss <- sum(percent[percent < 0]) / n_loss
 avg_loss_wo_dead <- sum(percent[percent < 0 & percent > (-90)]) / (n_loss - n_dead_loss)
 
+server <- shinyServer(function(input, output, session) {
+  observe({
+    volumes <- c("UserFolder"="C:/")
+    shinyFileSave(input, "save", roots=volumes, session=session)
+    fileinfo <- parseSavePath(volumes, input$save)
+    data <- data.frame(a=c(1,2))
+    if (nrow(fileinfo) > 0) {
+      write.xlsx(data, as.character(fileinfo$datapath))
+    }
+  })
+})
+
+shinyApp(ui = ui, server = server)
