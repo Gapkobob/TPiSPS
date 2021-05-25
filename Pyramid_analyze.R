@@ -4,12 +4,22 @@ library("ggplot2")
 library("httr")
 library("jsonlite")
 library("markdown")
+library(shiny)
+
+shinyApp(
+  ui = basicPage(
+    textInput("Contract_adress", label = "Введите адрес контракта", value = ""),
+    submitButton("Анализ контракта")
+  ),
+  server = function(input, output) {
+  }
+)
+
 
 # Загрузка данных
-External <- GET("https://api.etherscan.io/api?module=contract&action=getabi&address=0x02C60D28be3338014Fef3Fdf50a3218B946C0609&type=external&apikey=public")
+External <- GET("https://api.etherscan.io/api?module=contract&action=getabi&address="+ Contract_adress +"&type=external&apikey=public")
 
-Internal <- GET("https://api.etherscan.io/api?module=contract&action=getabi&address=0x02C60D28be3338014Fef3Fdf50a3218B946C0609&type=internal&apikey=public")
-
+Internal <- GET("https://api.etherscan.io/api?module=contract&action=getabi&address="+ Contract_adress +"&type=internal&apikey=public")
 
 total_invested <- sum(External$value) #Инвестированно в проект
 total_out <- sum(Internal$Value) #Выведенно из проекта
@@ -71,6 +81,7 @@ if (length(a) < length(b)) {
 }
 
 
+
 #Анализ счетов
 x <- aggregate(External["value"], by = External["from"], sum) #Введено этим адресом
 y <- aggregate(Internal["Value"], by = Internal["To"], sum) #Выведено этим адресом
@@ -107,4 +118,5 @@ max_loss <- min(percent)
 avg_profit <- sum(percent[percent > 0]) / n_profit
 avg_loss <- sum(percent[percent < 0]) / n_loss
 avg_loss_wo_dead <- sum(percent[percent < 0 & percent > (-90)]) / (n_loss - n_dead_loss)
+
 
